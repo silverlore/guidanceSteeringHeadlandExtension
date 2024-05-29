@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="61" >
+    <author>Silverlore</author>
+    <version>1.0.0.0</version>
+    <title>
+        <en>Guidance Steering Headland Extension</en>
+    </title>
+    <description>
+        <en><![CDATA[This Script draw a line repesenting den filled in distance to the field border]]></en>
+    </description>
+
+    <l10n filenamePrefix="translations/translation"/>
+
+    <iconFilename>icon.dds</iconFilename>
+
+    <multiplayer supported = "true" />
+
+    <extraSourceFiles>
+        <sourceFile filename="src/launcher.lua" />
+        <sourceFile filename="src/vehicles/specialization/event/PlowRotationEvent.lua" />
+    </extraSourceFiles>
+
+    <specializations>
+        <specialization name="PlowHalfTurn" className="PlowHalfTurn" filename="src/vehicles/specialization/PlowHalfTurn.lua"/>
+    </specializations>
+
+    <dependencies>
+        <dependency>FS22_guidanceSteering</dependency>
+    </dependencies>
+
+</modDesc>

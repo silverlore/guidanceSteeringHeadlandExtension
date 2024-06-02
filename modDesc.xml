@@ -9,7 +9,7 @@
         <en><![CDATA[This Script draw a line repesenting den filled in distance to the field border]]></en>
     </description>
 
-    <l10n filenamePrefix="translations/translation"/>
+    <!-- <l10n filenamePrefix="translations/translation"/> -->
 
     <iconFilename>icon.dds</iconFilename>
 
@@ -20,7 +20,7 @@
     </extraSourceFiles>
 
     <specializations>
-        <specialization name="HeadlandExt" className="HeadlandExt" filename="src/vehicles/specialization/HeadlandExt.lua"/>
+        <specialization name="headlandExt" className="HeadlandExt" filename="src/vehicles/specialization/HeadlandExt.lua"/>
     </specializations>
 
     <dependencies>

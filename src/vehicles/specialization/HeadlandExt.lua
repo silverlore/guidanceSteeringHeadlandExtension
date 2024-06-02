@@ -44,6 +44,8 @@ function HeadlandExt:onDraw()
 
             local lineOffset = g_currentMission.guidanceSteering:getLineOffset()
 
+            local headlandDistance = spec.headlandActDistance
+
             local function drawHeadLandMarker( lx, lz, dirX, dirZ, rgb)
 
                 local x1 = lx
@@ -59,29 +61,32 @@ function HeadlandExt:onDraw()
 
             local color = RGB_BLUE
 
-            if color == nil then
-                print("guidance steering headland extention: color is null")
-            end
-
             local beta = data.alphaRad + 1 / 2
             local lineX = x + data.width * lineDirZ * beta
             local lineZ = z - data.width * lineDirX * beta
 
             drawHeadLandMarker(lineX, lineZ, lineZDir, -lineXDir, color)
 
+            local beta = data.alphaRad + 1 / 2
+            local lineX = x + data.width * lineDirZ * beta + headlandDistance * lineDirX
+            local lineZ = z - data.width * lineDirX * beta - headlandDistance * lineDirZ
 
+            drawHeadLandMarker(lineX, lineZ, lineZDir, -lineXDir, color)
+            
             beta = data.alphaRad - 1 / 2
             lineX = x + data.width * lineDirZ * beta
             lineZ = z - data.width * lineDirX * beta
 
             drawHeadLandMarker(lineX, lineZ, -lineZDir, lineXDir, color)
 
+            local beta = data.alphaRad - 1 / 2
+            local lineX = x + data.width * lineDirZ * beta + headlandDistance * lineDirX
+            local lineZ = z - data.width * lineDirX * beta - headlandDistance * lineDirZ
+
+
+            drawHeadLandMarker(lineX, lineZ, -lineZDir, lineXDir, color)
+
         end
-
-
-
     end
-
-    print("guidance steering headland extention: End Draw")
 
 end

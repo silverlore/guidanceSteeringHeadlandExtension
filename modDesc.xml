@@ -17,11 +17,10 @@
 
     <extraSourceFiles>
         <sourceFile filename="src/launcher.lua" />
-        <sourceFile filename="src/vehicles/specialization/event/PlowRotationEvent.lua" />
     </extraSourceFiles>
 
     <specializations>
-        <specialization name="PlowHalfTurn" className="PlowHalfTurn" filename="src/vehicles/specialization/PlowHalfTurn.lua"/>
+        <specialization name="HeadlandExt" className="HeadlandExt" filename="src/vehicles/specialization/HeadlandExt.lua"/>
     </specializations>
 
     <dependencies>

@@ -17,6 +17,7 @@
 
     <extraSourceFiles>
         <sourceFile filename="src/launcher.lua" />
+        <sourceFile filename="src/utils/HeadlandUtil.lua" />
     </extraSourceFiles>
 
     <specializations>

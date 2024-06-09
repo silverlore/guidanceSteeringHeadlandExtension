@@ -1,17 +1,18 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Release
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+# Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Release new version'  
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -23,14 +24,39 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Package steering Headland extension mod
+        run: zip -r -v FS22_GuidanceSteeringHeadlandExt.zip . -x .* .\* Image/\* README.md modBuilder.ps1 modBuilder_test.ps1 modbuilder_test.sh
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.7
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine Version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.7
+
+      - name: Create git tag
+        run: git tag $GITVERSION_SEMVER
+
+      - name: Push to repository
+        run: git push --tags
+
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: FS22_GuidanceSteeringHeadlandExt.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.gitversion.outputs.semVer }}
+
+      - name: Archive build
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: FS22_GuidanceSteeringHeadlandExt.zip

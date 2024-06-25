@@ -84,7 +84,7 @@ function HeadlandExt:onDraw()
 
             drawHeadLandMarker(lineRightX, lineRightZ, lineZDir, -lineXDir, color)
 
-            local lineRightHeadlandX = x + data.width * lineDirZ * betaRight - headlandDistance * lineXDir
+            local lineRightHeadlandX = x + data.width * lineDirZ * betaRight + headlandDistance * lineXDir
             local lineRightHeadlandZ = z - data.width * lineDirX * betaRight + headlandDistance * lineZDir
 
             drawHeadLandMarker(lineRightHeadlandX, lineRightHeadlandZ, lineZDir, -lineXDir, color)
@@ -95,7 +95,7 @@ function HeadlandExt:onDraw()
 
             drawHeadLandMarker(lineLeftX, lineLeftZ, -lineZDir, lineXDir, color)
 
-            local lineLeftHeadlandX = x + data.width * lineDirZ * betaLeft - headlandDistance * lineXDir
+            local lineLeftHeadlandX = x + data.width * lineDirZ * betaLeft + headlandDistance * lineXDir
             local lineLeftHeadlandZ = z - data.width * lineDirX * betaLeft + headlandDistance * lineZDir
 
             drawHeadLandMarker(lineLeftHeadlandX, lineLeftHeadlandZ, -lineZDir, lineXDir, color)
@@ -136,108 +136,108 @@ function HeadlandExt:onDraw()
             spec.lastSnapDirection = {lineDirX, lineDirZ, lineX, lineZ}
             spec.lastLane = data.currentLane
 
-            if spec.positivFieldBorder == nil then
-                --print("Edge point is missing")
+            local targetLineX = x + data.width * lineDirZ * data.alphaRad
+            local targetLineZ = z - data.width * lineDirX * data.alphaRad
 
-                local targetLineX = x + data.width * lineDirZ * data.alphaRad
-                local targetLineZ = z - data.width * lineDirX * data.alphaRad
-            
-                local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, targetLineX, 0, targetLineZ)
-                local targetOnField = bits ~= 0
+            if data.alphaRad > -0.5 and data.alphaRad < 0.5 then
 
-                if targetOnField then
-                    --print("Target is on field")
-                    local centerBorderDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, lineDirX, lineDirZ, 1000)
-                    if centerBorderDistance < 1000 then
-                        spec.positivFieldBorder = {
-                            targetLineX+(centerBorderDistance - headlandDistance)*lineDirX,
-                            targetLineZ-(centerBorderDistance - headlandDistance)*lineDirZ
-                        }
-                        --print("Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
+                if spec.positivFieldBorder == nil then
+                    --print("Edge point is missing")
 
+                    local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, targetLineX, 0, targetLineZ)
+                    local targetOnField = bits ~= 0
+
+                    if targetOnField then
+                        --print("Target is on field")
+                        local centerBorderDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, lineDirX, lineDirZ, 1000)
+                        if centerBorderDistance < 1000 then
+                            spec.positivFieldBorder = {
+                                targetLineX+(centerBorderDistance - headlandDistance)*lineDirX,
+                                targetLineZ-(centerBorderDistance - headlandDistance)*lineDirZ
+                            }
+                            --print("Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
+
+                        end
+
+                        local rightSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, lineDirZ, lineDirX, data.width/2)
+                        local rightSideX = targetLineX + rightSideDistance * lineDirZ
+                        local rightSideZ = targetLineZ - rightSideDistance * lineDirX
+                        local rightBorderDistance = HeadlandUtil.FindFieldEdge(rightSideX, rightSideZ, lineDirX, lineDirZ, 1000)
+                        if rightBorderDistance < 1000 then
+                            spec.positivRightFieldBorder= {
+                                rightSideX+(rightBorderDistance - headlandDistance)*lineDirX,
+                                rightSideZ-(rightBorderDistance - headlandDistance)*lineDirZ
+                            }
+
+                            --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
+                        end
+
+                        local leftSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, -lineDirZ, -lineDirX, data.width/2)
+                        local leftSideX = targetLineX - leftSideDistance * lineDirZ
+                        local leftSideZ = targetLineZ + leftSideDistance * lineDirX
+                        local leftBorderDistance = HeadlandUtil.FindFieldEdge(leftSideX, leftSideZ, lineDirX, lineDirZ, 1000)
+                        if rightBorderDistance < 1000 then
+                            spec.positivLeftFieldBorder= {
+                                leftSideX+(leftBorderDistance - headlandDistance)*lineDirX,
+                                leftSideZ-(leftBorderDistance - headlandDistance)*lineDirZ
+                            }
+
+                            --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
+                        end
+                    else
+                        --print("Target is not on field")
                     end
 
-                    local rightSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, lineDirZ, lineDirX, data.width/2)
-                    local rightSideX = targetLineX + rightSideDistance * lineDirZ
-                    local rightSideZ = targetLineZ - rightSideDistance * lineDirX
-                    local rightBorderDistance = HeadlandUtil.FindFieldEdge(rightSideX, rightSideZ, lineDirX, lineDirZ, 1000)
-                    if rightBorderDistance < 1000 then
-                        spec.positivRightFieldBorder= {
-                            rightSideX+(rightBorderDistance - headlandDistance)*lineDirX,
-                            rightSideZ-(rightBorderDistance - headlandDistance)*lineDirZ
-                        }
-
-                        --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
-                    end
-
-                    local leftSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, -lineDirZ, -lineDirX, data.width/2)
-                    local leftSideX = targetLineX - leftSideDistance * lineDirZ
-                    local leftSideZ = targetLineZ + leftSideDistance * lineDirX
-                    local leftBorderDistance = HeadlandUtil.FindFieldEdge(leftSideX, leftSideZ, lineDirX, lineDirZ, 1000)
-                    if rightBorderDistance < 1000 then
-                        spec.positivLeftFieldBorder= {
-                            leftSideX+(leftBorderDistance - headlandDistance)*lineDirX,
-                            leftSideZ-(leftBorderDistance - headlandDistance)*lineDirZ
-                        }
-
-                        --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
-                    end
-                else
-                    --print("Target is not on field")
                 end
 
-            end
+                if spec.negativFieldBorder == nil then
+                    --print("Edge point is missing")
 
-            if spec.negativFieldBorder == nil then
-                --print("Edge point is missing")
+                    local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, targetLineX, 0, targetLineZ)
+                    local targetOnField = bits ~= 0
 
-                local targetLineX = x + data.width * lineDirZ * data.alphaRad
-                local targetLineZ = z - data.width * lineDirX * data.alphaRad
-            
-                local bits = getDensityAtWorldPos(g_currentMission.terrainDetailId, targetLineX, 0, targetLineZ)
-                local targetOnField = bits ~= 0
+                    if targetOnField then
+                        --print("Target is on field")
+                        local centerBorderDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, -lineDirX, -lineDirZ, 1000)
+                        if centerBorderDistance < 1000 then
+                            spec.negativFieldBorder = {
+                                targetLineX-(centerBorderDistance - headlandDistance)*lineDirX,
+                                targetLineZ+(centerBorderDistance - headlandDistance)*lineDirZ
+                            }
+                            --print("Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
 
-                if targetOnField then
-                    --print("Target is on field")
-                    local centerBorderDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, -lineDirX, -lineDirZ, 1000)
-                    if centerBorderDistance < 1000 then
-                        spec.negativFieldBorder = {
-                            targetLineX-(centerBorderDistance - headlandDistance)*lineDirX,
-                            targetLineZ+(centerBorderDistance - headlandDistance)*lineDirZ
-                        }
-                        --print("Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
+                        end
 
+                        local rightSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, lineDirZ, lineDirX, data.width/2)
+                        local rightSideX = targetLineX + rightSideDistance * lineDirZ
+                        local rightSideZ = targetLineZ - rightSideDistance * lineDirX
+                        local rightBorderDistance = HeadlandUtil.FindFieldEdge(rightSideX, rightSideZ, -lineDirX, -lineDirZ, 1000)
+                        if rightBorderDistance < 1000 then
+                            spec.negativRightFieldBorder= {
+                                rightSideX-(rightBorderDistance - headlandDistance)*lineDirX,
+                                rightSideZ+(rightBorderDistance - headlandDistance)*lineDirZ
+                            }
+
+                            --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
+                        end
+
+                        local leftSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, -lineDirZ, -lineDirX, data.width/2)
+                        local leftSideX = targetLineX - leftSideDistance * lineDirZ
+                        local leftSideZ = targetLineZ + leftSideDistance * lineDirX
+                        local leftBorderDistance = HeadlandUtil.FindFieldEdge(leftSideX, leftSideZ, -lineDirX, -lineDirZ, 1000)
+                        if rightBorderDistance < 1000 then
+                            spec.negativLeftFieldBorder= {
+                                leftSideX-(leftBorderDistance - headlandDistance)*lineDirX,
+                                leftSideZ+(leftBorderDistance - headlandDistance)*lineDirZ
+                            }
+
+                            --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
+                        end
+                    else
+                        --print("Target is not on field")
                     end
 
-                    local rightSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, lineDirZ, lineDirX, data.width/2)
-                    local rightSideX = targetLineX + rightSideDistance * lineDirZ
-                    local rightSideZ = targetLineZ - rightSideDistance * lineDirX
-                    local rightBorderDistance = HeadlandUtil.FindFieldEdge(rightSideX, rightSideZ, -lineDirX, -lineDirZ, 1000)
-                    if rightBorderDistance < 1000 then
-                        spec.negativRightFieldBorder= {
-                            rightSideX-(rightBorderDistance - headlandDistance)*lineDirX,
-                            rightSideZ+(rightBorderDistance - headlandDistance)*lineDirZ
-                        }
-
-                        --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
-                    end
-
-                    local leftSideDistance = HeadlandUtil.FindFieldEdge(targetLineX, targetLineZ, -lineDirZ, -lineDirX, data.width/2)
-                    local leftSideX = targetLineX - leftSideDistance * lineDirZ
-                    local leftSideZ = targetLineZ + leftSideDistance * lineDirX
-                    local leftBorderDistance = HeadlandUtil.FindFieldEdge(leftSideX, leftSideZ, -lineDirX, -lineDirZ, 1000)
-                    if rightBorderDistance < 1000 then
-                        spec.negativLeftFieldBorder= {
-                            leftSideX-(leftBorderDistance - headlandDistance)*lineDirX,
-                            leftSideZ+(leftBorderDistance - headlandDistance)*lineDirZ
-                        }
-
-                        --print("Right Edge found at " .. spec.positivFieldBorder[1] .. ";" .. spec.positivFieldBorder[2] )
-                    end
-                else
-                    --print("Target is not on field")
                 end
-
             end
 
             local function DrawSegmentedLine(x1, z1, x2, z2, rgb, steps, currentStep)
@@ -257,32 +257,98 @@ function HeadlandExt:onDraw()
                 local directZ = (z2-z1)/(steps*2)
 
                 local px1 = x1 + directX * currentStep * 2
-                local pz1 = z1 - directZ * currentStep * 2
+                local pz1 = z1 + directZ * currentStep * 2
                 local py1 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, px1, 0, pz1) + lineOffset
 
                 local px2 = x1 + directX * ((currentStep * 2)+1)
-                local pz2 = z1 - directZ * ((currentStep * 2)+1)
+                local pz2 = z1 + directZ * ((currentStep * 2)+1)
                 local py2 = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, px2, 0, pz2) + lineOffset
 
                 drawDebugLine(px1, py1, pz1, rgb[1], rgb[2], rgb[3], px2, py2, pz2, rgb[1], rgb[2], rgb[3])
 
                 DrawSegmentedLine(x1, z1, x2, z2, rgb, steps, currentStep + 1)
             end
+
+            -- if spec.positivLeftFieldBorder ~= nil then
+            --     drawHeadLandMarker(spec.positivLeftFieldBorder[1], spec.positivLeftFieldBorder[2], -lineDirZ, lineDirX, { 0, 1, 1 })
+            -- end
+
+            -- if spec.positivFieldBorder ~= nil then
+            --     drawHeadLandMarker(spec.positivFieldBorder[1], spec.positivFieldBorder[2], -lineDirZ, lineDirX, RGB_RED)
+            --     drawHeadLandMarker(spec.positivFieldBorder[1], spec.positivFieldBorder[2], lineDirZ, -lineDirX, RGB_RED)
+            -- end
+
+            -- if spec.positivRightFieldBorder ~= nil then
+            --     drawHeadLandMarker(spec.positivRightFieldBorder[1], spec.positivRightFieldBorder[2], lineDirZ, -lineDirX, { 1, 1, 0 })
+            -- end
+
+            -- if spec.negativLeftFieldBorder ~= nil then
+            --     drawHeadLandMarker(spec.negativLeftFieldBorder[1], spec.negativLeftFieldBorder[2], -lineDirZ, lineDirX, { 0, 1, 1 })
+            -- end
+
+            -- if spec.negativFieldBorder ~= nil then
+            --     drawHeadLandMarker(spec.negativFieldBorder[1], spec.negativFieldBorder[2], -lineDirZ, lineDirX, RGB_RED)
+            --     drawHeadLandMarker(spec.negativFieldBorder[1], spec.negativFieldBorder[2], lineDirZ, -lineDirX, RGB_RED)
+            -- end
+
+            -- if spec.negativRightFieldBorder ~= nil then
+            --     drawHeadLandMarker(spec.negativRightFieldBorder[1], spec.negativRightFieldBorder[2], lineDirZ, -lineDirX, { 1, 1, 0 })
+            -- end
             
             if spec.positivLeftFieldBorder ~= nil and spec.positivFieldBorder ~= nil then
-                DrawSegmentedLine(spec.positivLeftFieldBorder[1], spec.positivLeftFieldBorder[2], spec.positivFieldBorder[1], spec.positivFieldBorder[2], RGB_BLUE)
+                local length = 0;
+                if lineDirX == 0 then
+                    local borderVectorZ = targetLineZ - spec.positivFieldBorder[2]
+                    length = borderVectorZ / lineDirZ
+                else
+                    local borderVectorX = targetLineX - spec.positivFieldBorder[1]
+                    length = borderVectorX / lineDirX
+                end
+                if math.abs(length) < (headlandDistance + 5) then
+                    DrawSegmentedLine(spec.positivLeftFieldBorder[1], spec.positivLeftFieldBorder[2], spec.positivFieldBorder[1], spec.positivFieldBorder[2], RGB_BLUE)
+                end
             end
             
             if spec.positivFieldBorder ~= nil and spec.positivRightFieldBorder ~= nil then
-                DrawSegmentedLine(spec.positivFieldBorder[1], spec.positivFieldBorder[2], spec.positivRightFieldBorder[1], spec.positivRightFieldBorder[2], RGB_BLUE)
+                local length = 0;
+                if lineDirX == 0 then
+                    local borderVectorZ = targetLineZ - spec.positivFieldBorder[2]
+                    length = borderVectorZ / lineDirZ
+                else
+                    local borderVectorX = targetLineX - spec.positivFieldBorder[1]
+                    length = borderVectorX / lineDirX
+                end
+                if math.abs(length) < (headlandDistance + 5) then
+                    DrawSegmentedLine(spec.positivFieldBorder[1], spec.positivFieldBorder[2], spec.positivRightFieldBorder[1], spec.positivRightFieldBorder[2], RGB_BLUE)
+                end
             end
 
             if spec.negativLeftFieldBorder ~= nil and spec.negativFieldBorder ~= nil then
-                DrawSegmentedLine(spec.negativLeftFieldBorder[1], spec.negativLeftFieldBorder[2], spec.negativFieldBorder[1], spec.negativFieldBorder[2], RGB_BLUE)
+                local length = 0;
+                if lineDirX == 0 then
+                    local borderVectorZ = targetLineZ - spec.negativFieldBorder[2]
+                    length = borderVectorZ / lineDirZ
+                else
+                    local borderVectorX = targetLineX - spec.negativFieldBorder[1]
+                    length = borderVectorX / lineDirX
+                end
+                if math.abs(length) < (headlandDistance + 5) then
+                    DrawSegmentedLine(spec.negativLeftFieldBorder[1], spec.negativLeftFieldBorder[2], spec.negativFieldBorder[1], spec.negativFieldBorder[2], RGB_BLUE)
+                end
             end
             
             if spec.negativFieldBorder ~= nil and spec.negativRightFieldBorder ~= nil then
-                DrawSegmentedLine(spec.negativFieldBorder[1], spec.negativFieldBorder[2], spec.negativRightFieldBorder[1], spec.negativRightFieldBorder[2], RGB_BLUE)
+                local length = 0;
+                if lineDirX == 0 then
+                    local borderVectorZ = targetLineZ - spec.negativFieldBorder[2]
+                    length = borderVectorZ / lineDirZ
+                else
+                    local borderVectorX = targetLineX - spec.negativFieldBorder[1]
+                    length = borderVectorX / lineDirX
+                end
+                if math.abs(length) < (headlandDistance + 5) then
+                    DrawSegmentedLine(spec.negativFieldBorder[1], spec.negativFieldBorder[2], spec.negativRightFieldBorder[1], spec.negativRightFieldBorder[2], RGB_BLUE)
+                end
             end
         end
     end

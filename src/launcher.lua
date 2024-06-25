@@ -13,8 +13,7 @@ local function validateVehicleTypes(typeManager)
         HeadlandExt.modName = modName
 
         for typeName, typeEntry in pairs(g_vehicleTypeManager:getTypes()) do 
-            if SpecializationUtil.hasSpecialization(Drivable, typeEntry.specializations) and
-                not SpecializationUtil.hasSpecialization(SplineVehicle, typeEntry.specializations) and
+            if SpecializationUtil.hasSpecialization(FS22_guidanceSteering.GlobalPositioningSystem, typeEntry.specializations) and
                 not SpecializationUtil.hasSpecialization(HeadlandExt, typeEntry.specializations) then
                     typeManager:addSpecialization(typeName, modName .. ".headlandExt")
             end

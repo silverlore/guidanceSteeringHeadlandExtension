@@ -1,46 +1,35 @@
 HeadlandUtil = {}
 
-function HeadlandUtil.FindFieldEdge(x,z, dirX, dirZ, maxSearchDistance, currentStep)
+function HeadlandUtil.FindFieldEdge(x,z, dirX, dirZ, maxSearchDistance, currentStep, stepSize)
     if currentStep == nil then 
         currentStep = 0;
     end
 
-    local probePointx = x + dirX * currentStep
-    local probePointz = z - dirZ * currentStep
+    if stepSize == nil then
+        stepSize = 1;
+    end
+
+    local probePointx = x + dirX * (currentStep+stepSize)
+    local probePointz = z + dirZ * (currentStep+stepSize)
     
-    if currentStep > maxSearchDistance then
-        -- print("steps " .. currentStep .. " is extending " .. maxSearchDistance)
-        -- print("Target point " .. x .. ";" .. z)
-        -- print("extend point " .. probePointx .. ";" .. probePointz)
-        return maxSearchDistance
-    end
+    
 
     local b = getDensityAtWorldPos(g_currentMission.terrainDetailId, probePointx, 0, probePointz)
     local probeOnField = b ~= 0
 
     if probeOnField then
-        return HeadlandUtil.FindFieldEdge(x,z, dirX, dirZ, maxSearchDistance, currentStep + 1)
+        if currentStep > maxSearchDistance then
+            --print("steps " .. currentStep .. " is extending " .. maxSearchDistance)
+            return maxSearchDistance
+        else
+            return HeadlandUtil.FindFieldEdge(x,z, dirX, dirZ, maxSearchDistance, currentStep + stepSize, stepSize)
+        end
     else
-        --print("found edge backtrack to improve presision")
-        return HeadlandUtil.FindFieldEdgeBackTrack(x,z, dirX, dirZ, currentStep-0.1)
-    end
-end
+        if stepSize >= 1 then
+            return HeadlandUtil.FindFieldEdge(x,z, dirX, dirZ, maxSearchDistance, currentStep, 0.1)
+        else
+            return currentStep
+        end
 
-function HeadlandUtil.FindFieldEdgeBackTrack(x,z, dirX, dirZ, currentStep)
-    if currentStep == nil then 
-        currentStep = 0;
-    end
-
-    local probePointx = x + dirX * currentStep
-    local probePointz = z - dirZ * currentStep
-
-    local b = getDensityAtWorldPos(g_currentMission.terrainDetailId, probePointx, 0, probePointz)
-    local probeOnField = b ~= 0
-
-    if probeOnField then
-        --print("found presion edge ")
-        return currentStep
-    else
-        return HeadlandUtil.FindFieldEdgeBackTrack(x,z, dirX, dirZ, currentStep-0.1)
     end
 end
